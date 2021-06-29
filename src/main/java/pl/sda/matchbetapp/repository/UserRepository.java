@@ -12,10 +12,10 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
+
 @Repository
 public class UserRepository {
     private static final Logger LOGGER = LoggerFactory.getLogger(UserRepository.class);
@@ -32,7 +32,7 @@ public class UserRepository {
             long currentMaxId = allUsers.stream().mapToLong(us -> us.getId()).max().orElse(0L);
             user.setId(++currentMaxId);
         } else {
-            allUsers.removeIf(userEntity -> userEntity.getId().equals(user.getId()));
+            allUsers.removeIf(ent -> ent.getId().equals(user.getId()));
         }
         allUsers.add(user);
         storeInFile(allUsers);
