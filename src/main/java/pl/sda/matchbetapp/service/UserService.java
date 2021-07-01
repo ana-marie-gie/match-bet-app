@@ -2,7 +2,6 @@ package pl.sda.matchbetapp.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import pl.sda.matchbetapp.api.model.Match;
 import pl.sda.matchbetapp.api.model.User;
 import pl.sda.matchbetapp.repository.UserEntity;
 import pl.sda.matchbetapp.repository.UserRepository;
@@ -20,7 +19,7 @@ public class UserService {
         repository.save(UserEntity.builder()
                 .firstName(user.getFirstName())
                 .lastName(user.getLastName())
-                .email(user.getEmail())
+                .login(user.getEmail())
                 .build());
     }
 
@@ -29,7 +28,7 @@ public class UserService {
                 .id(user.getId())
                 .firstName(user.getFirstName())
                 .lastName(user.getLastName())
-                .email(user.getEmail())
+                .login(user.getEmail())
                 .build());
     }
 
@@ -43,7 +42,7 @@ public class UserService {
                         .id(ent.getId())
                         .firstName(ent.getFirstName())
                         .lastName(ent.getLastName())
-                        .email(ent.getEmail())
+                        .email(ent.getLogin())
                         .build())
                 .collect(Collectors.toList());
     }

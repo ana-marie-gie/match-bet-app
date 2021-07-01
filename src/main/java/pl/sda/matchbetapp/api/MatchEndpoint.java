@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.*;
 import pl.sda.matchbetapp.api.model.Error;
 import pl.sda.matchbetapp.api.model.Match;
 import pl.sda.matchbetapp.exception.DateInPastException;
+import pl.sda.matchbetapp.exception.MatchNotFoundException;
 import pl.sda.matchbetapp.service.MatchService;
 import pl.sda.matchbetapp.exception.IllegalStateException;
 
@@ -62,8 +63,21 @@ public class MatchEndpoint {
 
     @ExceptionHandler(value = {IllegalStateException.class})
     public ResponseEntity<Error> handleIllegalState(IllegalStateException ex){
-        LOGGER.error("Error occurred", ex);
         String code = UUID.randomUUID().toString();
+        LOGGER.error("Error occurred" + code, ex);
+        Error error = Error.builder()
+                .code(code)
+                .message(ex.getMessage())
+                .timestamp(LocalDateTime.now().toString())
+                .build();
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(error);
+    }
+    @ExceptionHandler(value = {DateInPastException.class})
+    public ResponseEntity<Error> handleMatchNotFound(MatchNotFoundException ex) {
+        String code = UUID.randomUUID().toString();
+        LOGGER.error("Error occurred" + code, ex);
         Error error = Error.builder()
                 .code(code)
                 .message(ex.getMessage())

@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import pl.sda.matchbetapp.api.model.Match;
 import pl.sda.matchbetapp.exception.DateInPastException;
+import pl.sda.matchbetapp.exception.MatchNotFoundException;
 import pl.sda.matchbetapp.repository.MatchEntity;
 import pl.sda.matchbetapp.repository.MatchRepository;
 
@@ -17,6 +18,9 @@ public class MatchService {
 
     private final MatchRepository repository;
 
+    public boolean checkIfMatchExists(Long id){
+        return repository.existsById(id);
+    }
     public void create(Match match) {
         if(LocalDateTime.now().isAfter(match.getStartTime())){
             throw new DateInPastException("Time is from the past.");
@@ -33,6 +37,9 @@ public class MatchService {
     }
 
     public void update(Match match) {
+        if(!repository.existsById(match.getId())){
+            throw new MatchNotFoundException("Match not found.");
+        }
         if(LocalDateTime.now().isAfter(match.getStartTime())){
             throw new DateInPastException("Time is from the past.");
         }
@@ -49,6 +56,9 @@ public class MatchService {
     }
 
     public void delete(Long id) {
+        if(!repository.existsById(id)){
+            throw new MatchNotFoundException("Match doesn't exists.");
+        }
         repository.delete(id);
     }
 
