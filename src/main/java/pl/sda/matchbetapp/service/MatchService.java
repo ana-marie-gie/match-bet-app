@@ -21,6 +21,10 @@ public class MatchService {
         if(LocalDateTime.now().isAfter(match.getStartTime())){
             throw new DateInPastException("Time is from the past.");
         }
+        if(match.getFirstTeam().isEmpty() ||
+                match.getSecondTeam().isEmpty()){
+          throw new IllegalStateException ("You didn't add team name.");
+        }
         repository.save(MatchEntity.builder()
                 .firstTeam(match.getFirstTeam())
                 .secondTeam(match.getSecondTeam())
@@ -31,6 +35,10 @@ public class MatchService {
     public void update(Match match) {
         if(LocalDateTime.now().isAfter(match.getStartTime())){
             throw new DateInPastException("Time is from the past.");
+        }
+        if(match.getFirstTeam().isEmpty() ||
+                match.getSecondTeam().isEmpty()){
+            throw new IllegalStateException ("You didn't add team name.");
         }
         repository.save(MatchEntity.builder()
                 .id(match.getId())

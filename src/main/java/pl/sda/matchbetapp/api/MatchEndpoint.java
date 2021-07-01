@@ -10,6 +10,7 @@ import pl.sda.matchbetapp.api.model.Error;
 import pl.sda.matchbetapp.api.model.Match;
 import pl.sda.matchbetapp.exception.DateInPastException;
 import pl.sda.matchbetapp.service.MatchService;
+import pl.sda.matchbetapp.exception.IllegalStateException;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -45,11 +46,24 @@ public class MatchEndpoint {
         matchService.delete(id);
     }
 
-
     @ExceptionHandler(value = {DateInPastException.class})
     public ResponseEntity<Error> handleDateInPast(DateInPastException ex) {
         String code = UUID.randomUUID().toString();
-        LOGGER.error("Error occured" + code, ex);
+        LOGGER.error("Error occurred" + code, ex);
+        Error error = Error.builder()
+                .code(code)
+                .message(ex.getMessage())
+                .timestamp(LocalDateTime.now().toString())
+                .build();
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(error);
+    }
+
+    @ExceptionHandler(value = {IllegalStateException.class})
+    public ResponseEntity<Error> handleIllegalState(IllegalStateException ex){
+        LOGGER.error("Error occurred", ex);
+        String code = UUID.randomUUID().toString();
         Error error = Error.builder()
                 .code(code)
                 .message(ex.getMessage())
