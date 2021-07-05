@@ -3,8 +3,10 @@ package pl.sda.matchbetapp.api;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import pl.sda.matchbetapp.api.model.Error;
 import pl.sda.matchbetapp.api.model.Match;
@@ -13,9 +15,11 @@ import pl.sda.matchbetapp.exception.MatchNotFoundException;
 import pl.sda.matchbetapp.service.MatchService;
 import pl.sda.matchbetapp.exception.IllegalStateException;
 
+import javax.validation.Valid;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/match")
@@ -32,13 +36,35 @@ public class MatchEndpoint {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public void createMatch(@RequestBody Match match) {
-        matchService.create(match);
+    public ResponseEntity createMatch(@Valid @RequestBody Match match, BindingResult bindingResult) {
+        if (bindingResult.hasErrors()) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(Error.builder()
+                            .code(UUID.randomUUID().toString())
+                            .timestamp(LocalDateTime.now().toString())
+                            .message(bindingResult.getAllErrors().stream()
+                                    .map(DefaultMessageSourceResolvable::getDefaultMessage)
+                                    .collect(Collectors.joining(". ")))
+                            .build());
+        }
+        matchService.createMatch(match);
+        return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
     @PutMapping
-    public void updateMatch(@RequestBody Match match) {
+    public ResponseEntity updateMatch(@Valid @RequestBody Match match, BindingResult bindingResult) {
+        if (bindingResult.hasErrors()) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(Error.builder()
+                            .code(UUID.randomUUID().toString())
+                            .timestamp(LocalDateTime.now().toString())
+                            .message(bindingResult.getAllErrors().stream()
+                                    .map(DefaultMessageSourceResolvable::getDefaultMessage)
+                                    .collect(Collectors.joining(". ")))
+                            .build());
+        }
         matchService.update(match);
+        return ResponseEntity.status(HttpStatus.OK).build();
     }
 
     @DeleteMapping
@@ -62,7 +88,7 @@ public class MatchEndpoint {
     }
 
     @ExceptionHandler(value = {IllegalStateException.class})
-    public ResponseEntity<Error> handleIllegalState(IllegalStateException ex){
+    public ResponseEntity<Error> handleIllegalState(IllegalStateException ex) {
         String code = UUID.randomUUID().toString();
         LOGGER.error("Error occurred" + code, ex);
         Error error = Error.builder()
@@ -74,6 +100,7 @@ public class MatchEndpoint {
                 .status(HttpStatus.BAD_REQUEST)
                 .body(error);
     }
+
     @ExceptionHandler(value = {DateInPastException.class})
     public ResponseEntity<Error> handleMatchNotFound(MatchNotFoundException ex) {
         String code = UUID.randomUUID().toString();

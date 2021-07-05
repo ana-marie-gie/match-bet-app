@@ -6,6 +6,7 @@ import org.springframework.web.bind.annotation.*;
 import pl.sda.matchbetapp.api.model.User;
 import pl.sda.matchbetapp.service.UserService;
 
+import javax.validation.Valid;
 import java.util.List;
 
 /*
@@ -19,25 +20,26 @@ public class UserEndpoint {
 
         private final UserService userService;
 
-        @GetMapping
-        public List<User> getAll() {
-            return userService.getAll();
-        }
 
         @PostMapping
         @ResponseStatus(HttpStatus.CREATED)
-        public void createUser(@RequestBody User user) {
-            userService.create(user);
+        public void createNewUser(@Valid @RequestBody User user) {
+            userService.createUser(user);
         }
 
         @PutMapping
-        public void updateUser(@RequestBody User user) {
-            userService.update(user);
+        public void updateUser(@Valid @RequestBody User user) {
+            userService.updateUser(user);
         }
 
         @DeleteMapping
         @ResponseStatus(HttpStatus.NO_CONTENT)
-        public void deleteMatch(@RequestParam Long id) {
-            userService.delete(id);
+        public void deleteUser(@RequestParam Long id) {
+            userService.deleteUser(id);
         }
+
+    @GetMapping
+    public List<User> getAll() {
+        return userService.getAll();
+    }
 }

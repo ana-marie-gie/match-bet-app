@@ -13,31 +13,31 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class UserService {
 
-    private final UserRepository repository;
+    private final UserRepository userRepository;
 
-    public void create(User user) {
-        repository.save(UserEntity.builder()
+    public void createUser(User user) {
+        userRepository.save(UserEntity.builder()
                 .firstName(user.getFirstName())
                 .lastName(user.getLastName())
                 .login(user.getLogin())
                 .build());
     }
 
-    public void update(User user) {
-        repository.save(UserEntity.builder()
+    public void updateUser(User user) {
+        userRepository.save(UserEntity.builder()
+                .firstName(user.getFirstName())
+                .lastName(user.getLastName())
+                .login(user.getLogin())
                 .id(user.getId())
-                .firstName(user.getFirstName())
-                .lastName(user.getLastName())
-                .login(user.getLogin())
                 .build());
     }
 
-    public void delete(Long id) {
-        repository.deleteById(id);
+    public void deleteUser(Long id) {
+        userRepository.deleteById(id);
     }
 
     public List<User> getAll() {
-        return repository.findAll().stream()
+        return userRepository.findAll().stream()
                 .map(ent -> User.builder()
                         .id(ent.getId())
                         .firstName(ent.getFirstName())

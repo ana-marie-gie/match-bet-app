@@ -16,20 +16,15 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class MatchService {
 
-    private final MatchRepository repository;
+    private final MatchRepository matchRepository;
 
     public boolean checkIfMatchExists(Long id){
-        return repository.existsById(id);
+        return matchRepository.existsById(id);
     }
-    public void create(Match match) {
-        if(LocalDateTime.now().isAfter(match.getStartTime())){
-            throw new DateInPastException("Time is from the past.");
-        }
-        if(match.getFirstTeam().isEmpty() ||
-                match.getSecondTeam().isEmpty()){
-          throw new IllegalStateException ("You didn't add team name.");
-        }
-        repository.save(MatchEntity.builder()
+    public void createMatch(Match match) {
+        validateStartTimeAndIfIsEmpty(match);
+
+        matchRepository.save(MatchEntity.builder()
                 .firstTeam(match.getFirstTeam())
                 .secondTeam(match.getSecondTeam())
                 .startTime(match.getStartTime())
@@ -37,17 +32,10 @@ public class MatchService {
     }
 
     public void update(Match match) {
-        if(!repository.existsById(match.getId())){
-            throw new MatchNotFoundException("Match not found.");
-        }
-        if(LocalDateTime.now().isAfter(match.getStartTime())){
-            throw new DateInPastException("Time is from the past.");
-        }
-        if(match.getFirstTeam().isEmpty() ||
-                match.getSecondTeam().isEmpty()){
-            throw new IllegalStateException ("You didn't add team name.");
-        }
-        repository.save(MatchEntity.builder()
+        validateMatchId(match.getId());
+        validateStartTimeAndIfIsEmpty(match);
+
+        matchRepository.save(MatchEntity.builder()
                 .id(match.getId())
                 .firstTeam(match.getFirstTeam())
                 .secondTeam(match.getSecondTeam())
@@ -56,14 +44,13 @@ public class MatchService {
     }
 
     public void delete(Long id) {
-        if(!repository.existsById(id)){
-            throw new MatchNotFoundException("Match doesn't exists.");
-        }
-        repository.deleteById(id);
+        validateMatchId(id);
+
+        matchRepository.deleteById(id);
     }
 
     public List<Match> getAll() {
-        return repository.findAll().stream()
+        return matchRepository.findAll().stream()
                 .map(ent -> Match.builder()
                         .id(ent.getId())
                         .firstTeam(ent.getFirstTeam())
@@ -72,5 +59,23 @@ public class MatchService {
                         .build())
                 .collect(Collectors.toList());
     }
+
+    private void validateMatchId(Long id) {
+        if (!matchRepository.existsById(id)) {
+            throw new MatchNotFoundException("Match not found");
+        }
+    }
+
+    private void validateStartTimeAndIfIsEmpty(Match match) {
+        if (LocalDateTime.now().isAfter(match.getStartTime())) {
+            throw new DateInPastException("Time is from the past");
+        }
+        if (match.getFirstTeam().isEmpty() ||
+                match.getSecondTeam().isEmpty()) {
+            throw new IllegalStateException("You didn't add team name");
+        }
+    }
+
+
 
 }
