@@ -59,11 +59,11 @@ public class MatchService {
         if(!repository.existsById(id)){
             throw new MatchNotFoundException("Match doesn't exists.");
         }
-        repository.delete(id);
+        repository.deleteById(id);
     }
 
     public List<Match> getAll() {
-        return repository.getAll().stream()
+        return repository.findAll().stream()
                 .map(ent -> Match.builder()
                         .id(ent.getId())
                         .firstTeam(ent.getFirstTeam())

@@ -7,6 +7,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import pl.sda.matchbetapp.api.model.Error;
+import pl.sda.matchbetapp.exception.MatchNotFoundException;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
@@ -18,6 +19,11 @@ public class GlobalErrorHandler {
     @ExceptionHandler (value = {IllegalStateException.class})
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public Error handleIllegalArgument(IllegalArgumentException ex){
+        return handleError(ex);
+    }
+    @ExceptionHandler(value = {MatchNotFoundException.class})
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public Error handleMatchNotFound(MatchNotFoundException ex){
         return handleError(ex);
     }
 

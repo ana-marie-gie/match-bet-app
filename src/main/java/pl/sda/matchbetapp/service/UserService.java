@@ -19,7 +19,7 @@ public class UserService {
         repository.save(UserEntity.builder()
                 .firstName(user.getFirstName())
                 .lastName(user.getLastName())
-                .login(user.getEmail())
+                .login(user.getLogin())
                 .build());
     }
 
@@ -28,21 +28,21 @@ public class UserService {
                 .id(user.getId())
                 .firstName(user.getFirstName())
                 .lastName(user.getLastName())
-                .login(user.getEmail())
+                .login(user.getLogin())
                 .build());
     }
 
     public void delete(Long id) {
-        repository.delete(id);
+        repository.deleteById(id);
     }
 
     public List<User> getAll() {
-        return repository.getAll().stream()
+        return repository.findAll().stream()
                 .map(ent -> User.builder()
                         .id(ent.getId())
                         .firstName(ent.getFirstName())
                         .lastName(ent.getLastName())
-                        .email(ent.getLogin())
+                        .login(ent.getLogin())
                         .build())
                 .collect(Collectors.toList());
     }
