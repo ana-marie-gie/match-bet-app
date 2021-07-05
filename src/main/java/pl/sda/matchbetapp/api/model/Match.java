@@ -1,6 +1,7 @@
 package pl.sda.matchbetapp.api.model;
 
 import lombok.*;
+import pl.sda.matchbetapp.api.validator.DifferentTeams;
 
 import java.time.LocalDateTime;
 
@@ -9,6 +10,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@DifferentTeams
 public class Match {
     private Long id;
     private String firstTeam;
