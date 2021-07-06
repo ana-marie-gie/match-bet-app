@@ -11,6 +11,7 @@ import pl.sda.matchbetapp.repository.MatchEntity;
 import pl.sda.matchbetapp.repository.UserEntity;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -34,15 +35,37 @@ public class BetService {
         betRepository.deleteById(id);
     }
 
+
     public List<BetDetails> getAllForUser(Long userId) {
-        return null;
+        return betRepository.findAllByUser_id(userId)
+                .stream()
+                .map(this::toDetails)
+                .collect(Collectors.toList());
     }
+
+
 
     public List<BetDetails> getAllForMatch(Long matchId) {
-        return null;
+        return betRepository.findAllByMatch_id(matchId)
+                .stream()
+                .map(this::toDetails)
+                .collect(Collectors.toList());
     }
 
-
+    private BetDetails toDetails(BetEntity ent) {
+        UserEntity user = ent.getUser();
+        MatchEntity match = ent.getMatch();
+        return BetDetails.builder()
+                .id(ent.getId())
+                .firstTeam(match.getFirstTeam())
+                .secondTeam(match.getSecondTeam())
+                .startTime(match.getStartTime())
+                .userLogin(user.getLogin())
+                .userName(user.getFirstName() + " " + user.getLastName())
+                .firstTeamResult(ent.getFirstTeamResult())
+                .secondTeamResult(ent.getSecondTeamResult())
+                .build();
+    }
 
 
     private void validateBet(NewBet bet) {
