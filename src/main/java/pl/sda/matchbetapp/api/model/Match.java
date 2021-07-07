@@ -1,6 +1,7 @@
 package pl.sda.matchbetapp.api.model;
 
 import lombok.*;
+import org.springframework.format.annotation.DateTimeFormat;
 import pl.sda.matchbetapp.api.validator.DifferentTeams;
 import pl.sda.matchbetapp.api.validator.TeamName;
 

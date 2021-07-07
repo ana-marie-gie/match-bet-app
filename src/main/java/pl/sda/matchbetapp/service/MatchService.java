@@ -3,6 +3,7 @@ package pl.sda.matchbetapp.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import pl.sda.matchbetapp.api.model.Match;
+import pl.sda.matchbetapp.api.model.MatchSearchParams;
 import pl.sda.matchbetapp.exception.DateInPastException;
 import pl.sda.matchbetapp.exception.MatchNotFoundException;
 import pl.sda.matchbetapp.repository.MatchEntity;
@@ -17,6 +18,13 @@ import java.util.stream.Collectors;
 public class MatchService {
 
     private final MatchRepository matchRepository;
+
+    public List<Match> getBySearchParams(MatchSearchParams searchParams){
+        return matchRepository.searchByParams(searchParams)
+                .stream()
+                .map(this::toMatch)
+                .collect(Collectors.toList());
+    }
 
     public boolean checkIfMatchExists(Long id){
         return matchRepository.existsById(id);
@@ -51,12 +59,7 @@ public class MatchService {
 
     public List<Match> getAll() {
         return matchRepository.findAll().stream()
-                .map(ent -> Match.builder()
-                        .id(ent.getId())
-                        .firstTeam(ent.getFirstTeam())
-                        .secondTeam(ent.getSecondTeam())
-                        .startTime(ent.getStartTime())
-                        .build())
+                .map(this::toMatch)
                 .collect(Collectors.toList());
     }
 
@@ -74,6 +77,15 @@ public class MatchService {
                 match.getSecondTeam().isEmpty()) {
             throw new IllegalStateException("You didn't add team name");
         }
+    }
+
+    private Match toMatch(MatchEntity ent) {
+        return Match.builder()
+                .id(ent.getId())
+                .firstTeam(ent.getFirstTeam())
+                .secondTeam(ent.getSecondTeam())
+                .startTime(ent.getStartTime())
+                .build();
     }
 
 

@@ -10,10 +10,10 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import pl.sda.matchbetapp.api.model.Error;
 import pl.sda.matchbetapp.api.model.Match;
+import pl.sda.matchbetapp.api.model.MatchSearchParams;
 import pl.sda.matchbetapp.exception.DateInPastException;
 import pl.sda.matchbetapp.exception.MatchNotFoundException;
 import pl.sda.matchbetapp.service.MatchService;
-import pl.sda.matchbetapp.exception.IllegalStateException;
 
 import javax.validation.Valid;
 import java.time.LocalDateTime;
@@ -22,13 +22,18 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 @RestController
-@RequestMapping("/match")
+@RequestMapping("/api/match")
 @RequiredArgsConstructor
 public class MatchEndpoint {
+
 
     public final static Logger LOGGER = LoggerFactory.getLogger(MatchEndpoint.class);
     private final MatchService matchService;
 
+    @PostMapping("/search")
+    public List<Match> getBySearchParams(@RequestBody MatchSearchParams searchParams){
+        return matchService.getBySearchParams(searchParams);
+    }
     @GetMapping
     public List<Match> getAll() {
         return matchService.getAll();
@@ -53,16 +58,6 @@ public class MatchEndpoint {
 
     @PutMapping
     public ResponseEntity updateMatch(@Valid @RequestBody Match match, BindingResult bindingResult) {
-        if (bindingResult.hasErrors()) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body(Error.builder()
-                            .code(UUID.randomUUID().toString())
-                            .timestamp(LocalDateTime.now().toString())
-                            .message(bindingResult.getAllErrors().stream()
-                                    .map(DefaultMessageSourceResolvable::getDefaultMessage)
-                                    .collect(Collectors.joining(". ")))
-                            .build());
-        }
         matchService.update(match);
         return ResponseEntity.status(HttpStatus.OK).build();
     }
@@ -101,7 +96,7 @@ public class MatchEndpoint {
                 .body(error);
     }
 
-    @ExceptionHandler(value = {DateInPastException.class})
+    @ExceptionHandler(value = {MatchNotFoundException.class})
     public ResponseEntity<Error> handleMatchNotFound(MatchNotFoundException ex) {
         String code = UUID.randomUUID().toString();
         LOGGER.error("Error occurred" + code, ex);
